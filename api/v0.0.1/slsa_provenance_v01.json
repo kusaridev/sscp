@@ -1,0 +1,692 @@
+{
+    "title": "InTotoStatementV1_for_SLSAProvenanceV1Predicate",
+    "description": "Represents an In-Toto v1 statement.",
+    "type": "object",
+    "required": [
+      "_type",
+      "predicate",
+      "predicateType",
+      "subject"
+    ],
+    "properties": {
+      "_type": {
+        "type": "string",
+        "format": "uri"
+      },
+      "predicate": {
+        "$ref": "#/definitions/SLSAProvenanceV1Predicate"
+      },
+      "predicateType": {
+        "type": "string",
+        "format": "uri"
+      },
+      "subject": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Subject"
+        }
+      }
+    },
+    "definitions": {
+      "BuildDefinition": {
+        "description": "A structure representing the build definition of the SLSA Provenance v1 Predicate.",
+        "type": "object",
+        "required": [
+          "buildType",
+          "externalParameters"
+        ],
+        "properties": {
+          "buildType": {
+            "type": "string",
+            "format": "uri"
+          },
+          "externalParameters": {
+            "description": "The parameters that are under external control, such as those set by a user or tenant of the build platform. They MUST be complete at SLSA Build L3, meaning that there is no additional mechanism for an external party to influence the build. (At lower SLSA Build levels, the completeness MAY be best effort.)\\nThe build platform SHOULD be designed to minimize the size and complexity of externalParameters, in order to reduce fragility and ease verification. Consumers SHOULD have an expectation of what “good” looks like; the more information that they need to check, the harder that task becomes.\\nVerifiers SHOULD reject unrecognized or unexpected fields within externalParameters.",
+            "type": "object",
+            "additionalProperties": true
+          },
+          "internalParameters": {
+            "description": "Unordered collection of artifacts needed at build time. Completeness is best effort, at least through SLSA Build L3. For example, if the build script fetches and executes “example.com/foo.sh”, which in turn fetches “example.com/bar.tar.gz”, then both “foo.sh” and “bar.tar.gz” SHOULD be listed here.",
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "resolvedDependencies": {
+            "description": "Unordered collection of artifacts needed at build time. Completeness is best effort, at least through SLSA Build L3. For example, if the build script fetches and executes “example.com/foo.sh”, which in turn fetches “example.com/bar.tar.gz”, then both “foo.sh” and “bar.tar.gz” SHOULD be listed here.",
+            "type": "array",
+            "items": {
+              "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+              "type": "object",
+              "required": [
+                "uri"
+              ],
+              "properties": {
+                "annotations": {
+                  "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "nullable": true
+                },
+                "content": {
+                  "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                  "type": "string"
+                },
+                "digest": {
+                  "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "nullable": true
+                },
+                "downloadLocation": {
+                  "description": "The location of the described resource or artifact, if different from the uri.",
+                  "type": "string",
+                  "format": "uri"
+                },
+                "mediaType": {
+                  "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                  "type": "string",
+                  "nullable": true
+                },
+                "name": {
+                  "description": "Machine-readable identifier for distinguishing between descriptors.",
+                  "type": "string",
+                  "nullable": true
+                },
+                "uri": {
+                  "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "nullable": true
+          }
+        }
+      },
+      "BuildMetadata": {
+        "description": "A structure representing the metadata of the SLSA Provenance v1 Predicate.",
+        "type": "object",
+        "properties": {
+          "finishedOn": {
+            "description": "The timestamp of when the build completed.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "invocationId": {
+            "description": "Identifies this particular build invocation, which can be useful for finding associated logs or other ad-hoc analysis. The exact meaning and format is defined by builder.id; by default it is treated as opaque and case-sensitive. The value SHOULD be globally unique.",
+            "type": "string",
+            "nullable": true
+          },
+          "startedOn": {
+            "description": "The timestamp of when the build started.",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Builder": {
+        "description": "A structure representing the builder information of the SLSA Provenance v1 Predicate.",
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "builderDependencies": {
+            "type": "array",
+            "items": {
+              "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+              "type": "object",
+              "required": [
+                "uri"
+              ],
+              "properties": {
+                "annotations": {
+                  "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "nullable": true
+                },
+                "content": {
+                  "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                  "type": "string"
+                },
+                "digest": {
+                  "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "nullable": true
+                },
+                "downloadLocation": {
+                  "description": "The location of the described resource or artifact, if different from the uri.",
+                  "type": "string",
+                  "format": "uri"
+                },
+                "mediaType": {
+                  "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                  "type": "string",
+                  "nullable": true
+                },
+                "name": {
+                  "description": "Machine-readable identifier for distinguishing between descriptors.",
+                  "type": "string",
+                  "nullable": true
+                },
+                "uri": {
+                  "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uri"
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DigestSet": {
+        "description": "Represents a set of digests, mapping algorithms to their respective digest strings.",
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "ResourceDescriptor": {
+        "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+        "type": "object",
+        "required": [
+          "uri"
+        ],
+        "properties": {
+          "annotations": {
+            "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "content": {
+            "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+            "type": "string"
+          },
+          "digest": {
+            "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "downloadLocation": {
+            "description": "The location of the described resource or artifact, if different from the uri.",
+            "type": "string",
+            "format": "uri"
+          },
+          "mediaType": {
+            "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "description": "Machine-readable identifier for distinguishing between descriptors.",
+            "type": "string",
+            "nullable": true
+          },
+          "uri": {
+            "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "RunDetails": {
+        "description": "A structure representing the run details of the SLSA Provenance v1 Predicate.",
+        "type": "object",
+        "required": [
+          "builder"
+        ],
+        "properties": {
+          "builder": {
+            "description": "Identifies the build platform that executed the invocation, which is trusted to have correctly performed the operation and populated this provenance.",
+            "allOf": [
+              {
+                "description": "A structure representing the builder information of the SLSA Provenance v1 Predicate.",
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "builderDependencies": {
+                    "type": "array",
+                    "items": {
+                      "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+                      "type": "object",
+                      "required": [
+                        "uri"
+                      ],
+                      "properties": {
+                        "annotations": {
+                          "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                          "type": "object",
+                          "additionalProperties": true,
+                          "nullable": true
+                        },
+                        "content": {
+                          "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                          "type": "string"
+                        },
+                        "digest": {
+                          "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "nullable": true
+                        },
+                        "downloadLocation": {
+                          "description": "The location of the described resource or artifact, if different from the uri.",
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "mediaType": {
+                          "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "description": "Machine-readable identifier for distinguishing between descriptors.",
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "uri": {
+                          "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    },
+                    "nullable": true
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            ]
+          },
+          "byproducts": {
+            "description": "Additional artifacts generated during the build that are not considered the “output” of the build but that might be needed during debugging or incident response. For example, this might reference logs generated during the build and/or a digest of the fully evaluated build configuration.\\nIn most cases, this SHOULD NOT contain all intermediate files generated during the build. Instead, this SHOULD only contain files that are likely to be useful later and that cannot be easily reproduced.",
+            "type": "array",
+            "items": {
+              "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+              "type": "object",
+              "required": [
+                "uri"
+              ],
+              "properties": {
+                "annotations": {
+                  "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "nullable": true
+                },
+                "content": {
+                  "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                  "type": "string"
+                },
+                "digest": {
+                  "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "nullable": true
+                },
+                "downloadLocation": {
+                  "description": "The location of the described resource or artifact, if different from the uri.",
+                  "type": "string",
+                  "format": "uri"
+                },
+                "mediaType": {
+                  "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                  "type": "string",
+                  "nullable": true
+                },
+                "name": {
+                  "description": "Machine-readable identifier for distinguishing between descriptors.",
+                  "type": "string",
+                  "nullable": true
+                },
+                "uri": {
+                  "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "nullable": true
+          },
+          "metadata": {
+            "description": "metadata about this particular execution of the build.",
+            "anyOf": [
+              {
+                "description": "A structure representing the metadata of the SLSA Provenance v1 Predicate.",
+                "type": "object",
+                "properties": {
+                  "finishedOn": {
+                    "description": "The timestamp of when the build completed.",
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                  },
+                  "invocationId": {
+                    "description": "Identifies this particular build invocation, which can be useful for finding associated logs or other ad-hoc analysis. The exact meaning and format is defined by builder.id; by default it is treated as opaque and case-sensitive. The value SHOULD be globally unique.",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "startedOn": {
+                    "description": "The timestamp of when the build started.",
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                  }
+                }
+              },
+              {
+                "nullable": true
+              }
+            ]
+          }
+        }
+      },
+      "SLSAProvenanceV1Predicate": {
+        "description": "A structure representing the SLSA Provenance v1 Predicate.",
+        "type": "object",
+        "required": [
+          "buildDefinition",
+          "runDetails"
+        ],
+        "properties": {
+          "buildDefinition": {
+            "description": "A structure representing the build definition of the SLSA Provenance v1 Predicate.",
+            "type": "object",
+            "required": [
+              "buildType",
+              "externalParameters"
+            ],
+            "properties": {
+              "buildType": {
+                "type": "string",
+                "format": "uri"
+              },
+              "externalParameters": {
+                "description": "The parameters that are under external control, such as those set by a user or tenant of the build platform. They MUST be complete at SLSA Build L3, meaning that there is no additional mechanism for an external party to influence the build. (At lower SLSA Build levels, the completeness MAY be best effort.)\\nThe build platform SHOULD be designed to minimize the size and complexity of externalParameters, in order to reduce fragility and ease verification. Consumers SHOULD have an expectation of what “good” looks like; the more information that they need to check, the harder that task becomes.\\nVerifiers SHOULD reject unrecognized or unexpected fields within externalParameters.",
+                "type": "object",
+                "additionalProperties": true
+              },
+              "internalParameters": {
+                "description": "Unordered collection of artifacts needed at build time. Completeness is best effort, at least through SLSA Build L3. For example, if the build script fetches and executes “example.com/foo.sh”, which in turn fetches “example.com/bar.tar.gz”, then both “foo.sh” and “bar.tar.gz” SHOULD be listed here.",
+                "type": "object",
+                "additionalProperties": true,
+                "nullable": true
+              },
+              "resolvedDependencies": {
+                "description": "Unordered collection of artifacts needed at build time. Completeness is best effort, at least through SLSA Build L3. For example, if the build script fetches and executes “example.com/foo.sh”, which in turn fetches “example.com/bar.tar.gz”, then both “foo.sh” and “bar.tar.gz” SHOULD be listed here.",
+                "type": "array",
+                "items": {
+                  "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+                  "type": "object",
+                  "required": [
+                    "uri"
+                  ],
+                  "properties": {
+                    "annotations": {
+                      "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                      "type": "object",
+                      "additionalProperties": true,
+                      "nullable": true
+                    },
+                    "content": {
+                      "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                      "type": "string"
+                    },
+                    "digest": {
+                      "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    },
+                    "downloadLocation": {
+                      "description": "The location of the described resource or artifact, if different from the uri.",
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "mediaType": {
+                      "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "name": {
+                      "description": "Machine-readable identifier for distinguishing between descriptors.",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "uri": {
+                      "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "runDetails": {
+            "description": "A structure representing the run details of the SLSA Provenance v1 Predicate.",
+            "type": "object",
+            "required": [
+              "builder"
+            ],
+            "properties": {
+              "builder": {
+                "description": "Identifies the build platform that executed the invocation, which is trusted to have correctly performed the operation and populated this provenance.",
+                "allOf": [
+                  {
+                    "description": "A structure representing the builder information of the SLSA Provenance v1 Predicate.",
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "builderDependencies": {
+                        "type": "array",
+                        "items": {
+                          "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+                          "type": "object",
+                          "required": [
+                            "uri"
+                          ],
+                          "properties": {
+                            "annotations": {
+                              "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                              "type": "object",
+                              "additionalProperties": true,
+                              "nullable": true
+                            },
+                            "content": {
+                              "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                              "type": "string"
+                            },
+                            "digest": {
+                              "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "nullable": true
+                            },
+                            "downloadLocation": {
+                              "description": "The location of the described resource or artifact, if different from the uri.",
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "mediaType": {
+                              "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "name": {
+                              "description": "Machine-readable identifier for distinguishing between descriptors.",
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "uri": {
+                              "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                              "type": "string",
+                              "format": "uri"
+                            }
+                          }
+                        },
+                        "nullable": true
+                      },
+                      "id": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "version": {
+                        "type": "string",
+                        "nullable": true
+                      }
+                    }
+                  }
+                ]
+              },
+              "byproducts": {
+                "description": "Additional artifacts generated during the build that are not considered the “output” of the build but that might be needed during debugging or incident response. For example, this might reference logs generated during the build and/or a digest of the fully evaluated build configuration.\\nIn most cases, this SHOULD NOT contain all intermediate files generated during the build. Instead, this SHOULD only contain files that are likely to be useful later and that cannot be easily reproduced.",
+                "type": "array",
+                "items": {
+                  "description": "A size-efficient description of any software artifact or resource (mutable or immutable).",
+                  "type": "object",
+                  "required": [
+                    "uri"
+                  ],
+                  "properties": {
+                    "annotations": {
+                      "description": "This field MAY be used to provide additional information or metadata about the resource or artifact that may be useful to the consumer when evaluating the attestation against a policy.",
+                      "type": "object",
+                      "additionalProperties": true,
+                      "nullable": true
+                    },
+                    "content": {
+                      "description": "The contents of the resource or artifact. This field is REQUIRED unless either uri or digest is set.",
+                      "type": "string"
+                    },
+                    "digest": {
+                      "description": "A set of cryptographic digests of the contents of the resource or artifact. This field is REQUIRED unless either uri or content is set.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    },
+                    "downloadLocation": {
+                      "description": "The location of the described resource or artifact, if different from the uri.",
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "mediaType": {
+                      "description": "The MIME Type (i.e., media type) of the described resource or artifact.",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "name": {
+                      "description": "Machine-readable identifier for distinguishing between descriptors.",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "uri": {
+                      "description": "A URI used to identify the resource or artifact globally. This field is REQUIRED unless either digest or content is set.",
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                },
+                "nullable": true
+              },
+              "metadata": {
+                "description": "metadata about this particular execution of the build.",
+                "anyOf": [
+                  {
+                    "description": "A structure representing the metadata of the SLSA Provenance v1 Predicate.",
+                    "type": "object",
+                    "properties": {
+                      "finishedOn": {
+                        "description": "The timestamp of when the build completed.",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "invocationId": {
+                        "description": "Identifies this particular build invocation, which can be useful for finding associated logs or other ad-hoc analysis. The exact meaning and format is defined by builder.id; by default it is treated as opaque and case-sensitive. The value SHOULD be globally unique.",
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "startedOn": {
+                        "description": "The timestamp of when the build started.",
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      }
+                    }
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "Subject": {
+        "description": "Represents a subject in an In-Toto v1 statement.",
+        "type": "object",
+        "required": [
+          "digest",
+          "name"
+        ],
+        "properties": {
+          "digest": {
+            "description": "Represents a set of digests, mapping algorithms to their respective digest strings.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+  

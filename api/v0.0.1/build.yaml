@@ -1,0 +1,223 @@
+openapi: '3.0.2'
+info:
+  title: Secure Build API
+  version: '0.0.1'
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://api.server.test/v1
+tags:
+  - name: build
+    description: Running a secure build
+paths:
+  /build:
+    post:
+      tags:
+        - build
+      summary: Add a new build to run
+      description: Add a new build
+      operationId: addBuild
+      requestBody:
+        description: Create a new build
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Build'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Build'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Build'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Build'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Build'
+        '405':
+          description: Invalid input
+      security:
+        - api_key:
+          - write:builds
+          - read:builds
+  /build/{buildId}:
+    get:
+      tags:
+        - build
+      summary: Return build info
+      description: Return build info by buildId
+      operationId: getBuildById
+      parameters:
+        - name: buildId
+          in: path
+          description: Id of build
+          required: true
+          schema:
+            type: integer
+            format: uint16
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildStatus'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BuildStatus'
+        '400':
+          description: Invalid Id supplied
+        '404':
+          description: Build not found or still in progress
+      security:
+        - api_key:
+          - read:builds
+  /build/{buildId}/outputs:
+    get:
+      tags:
+        - build
+      summary: return manifest of build outputs
+      description: return manifest build outputs by buildId
+      operationId: getBuildOutputManifestById
+      parameters:
+        - name: buildId
+          in: path
+          description: Id of build
+          required: true
+          schema:
+            type: integer
+            format: uint16
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildOutputManifest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BuildOutputManifest'
+        '400':
+          description: Invalid Id supplied
+        '404':
+          description: Build not found
+  /build/{buildId}/slsa:
+    get:
+      tags:
+       - build
+      summary: return SLSA attestation
+      description: return SLSA attestation by buildId
+      operationId: getSLSAById
+      parameters:
+        - name: buildId
+          in: path
+          description: Id of build
+          required: true
+          schema:
+            type: integer
+            format: uint16
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: './slsa_provenance_v01.json'
+components:
+  schemas:
+    Build:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint16
+          example: 123
+        gitRef:
+          $ref: '#/components/schemas/GitRef'
+        buildCommand:
+          type: array
+          items:
+            type: string
+            example: ["go", "build"]
+        buildType:
+          type: string
+          enum:
+            - go
+      xml:
+        name: build
+    BuildStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - running
+            - successful
+            - failed
+    BuildOutputManifest:
+      type: object
+      properties:
+        outputs:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/BuildOutput'
+    BuildOutput:
+    # TODO(mlieberman85): This should  just be an in-toto resource descriptor
+      type: object
+      properties:
+        sha256:
+          type: string
+          format: sha256
+        mediaType:
+          type: string
+          format: mime
+        path:
+          type: string
+          format: uri-reference
+    GitRef:
+      type: object
+      properties:
+        uri:
+          type: string
+          format: uri-reference
+          example: https://github.com/kusaridev/cleanroom
+        commitId:
+          type: string
+          format: sha1
+          example: "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+      xml:
+        name: gitRef
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  requestBodies:
+    Build:
+      description: Build to be orchestrated
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Build'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Build'
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

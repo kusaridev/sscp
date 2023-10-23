@@ -1,0 +1,635 @@
+openapi: 3.0.2
+info:
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Secure Build API
+  version: 0.0.1
+servers:
+- url: https://api.server.test/v1
+tags:
+- description: Running a secure build
+  name: build
+paths:
+  /build:
+    post:
+      description: Add a new build
+      operationId: addBuild
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Build'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Build'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Build'
+        description: Create a new build
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Build'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Build'
+          description: Successful operation
+        "405":
+          description: Invalid input
+      security:
+      - api_key:
+        - write:builds
+        - read:builds
+      summary: Add a new build to run
+      tags:
+      - build
+  /build/{buildId}:
+    get:
+      description: Return build info by buildId
+      operationId: getBuildById
+      parameters:
+      - description: Id of build
+        explode: false
+        in: path
+        name: buildId
+        required: true
+        schema:
+          format: uint16
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildStatus'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BuildStatus'
+          description: successful operation
+        "400":
+          description: Invalid Id supplied
+        "404":
+          description: Build not found or still in progress
+      security:
+      - api_key:
+        - read:builds
+      summary: Return build info
+      tags:
+      - build
+  /build/{buildId}/outputs:
+    get:
+      description: return manifest build outputs by buildId
+      operationId: getBuildOutputManifestById
+      parameters:
+      - description: Id of build
+        explode: false
+        in: path
+        name: buildId
+        required: true
+        schema:
+          format: uint16
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildOutputManifest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BuildOutputManifest'
+          description: successful operation
+        "400":
+          description: Invalid Id supplied
+        "404":
+          description: Build not found
+      summary: return manifest of build outputs
+      tags:
+      - build
+  /build/{buildId}/slsa:
+    get:
+      description: return SLSA attestation by buildId
+      operationId: getSLSAById
+      parameters:
+      - description: Id of build
+        explode: false
+        in: path
+        name: buildId
+        required: true
+        schema:
+          format: uint16
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/slsa_provenance_v01'
+          description: successful operation
+      summary: return SLSA attestation
+      tags:
+      - build
+components:
+  requestBodies:
+    Build:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Build'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Build'
+      description: Build to be orchestrated
+  schemas:
+    Build:
+      example:
+        gitRef:
+          commitId: da39a3ee5e6b4b0d3255bfef95601890afd80709
+          uri: https://github.com/kusaridev/cleanroom
+        buildCommand:
+        - "[\"go\",\"build\"]"
+        - "[\"go\",\"build\"]"
+        buildType: go
+        id: 123
+      properties:
+        id:
+          example: 123
+          format: uint16
+          type: integer
+        gitRef:
+          $ref: '#/components/schemas/GitRef'
+        buildCommand:
+          items:
+            example: "[\"go\",\"build\"]"
+            type: string
+          type: array
+        buildType:
+          enum:
+          - go
+          type: string
+      type: object
+      xml:
+        name: build
+    BuildStatus:
+      example:
+        status: running
+      properties:
+        status:
+          enum:
+          - running
+          - successful
+          - failed
+          type: string
+      type: object
+    BuildOutputManifest:
+      example:
+        outputs:
+          key:
+            path: path
+            sha256: sha256
+            mediaType: mediaType
+      properties:
+        outputs:
+          additionalProperties:
+            $ref: '#/components/schemas/BuildOutput'
+          type: object
+      type: object
+    BuildOutput:
+      example:
+        path: path
+        sha256: sha256
+        mediaType: mediaType
+      properties:
+        sha256:
+          format: sha256
+          type: string
+        mediaType:
+          format: mime
+          type: string
+        path:
+          format: uri-reference
+          type: string
+      type: object
+    GitRef:
+      example:
+        commitId: da39a3ee5e6b4b0d3255bfef95601890afd80709
+        uri: https://github.com/kusaridev/cleanroom
+      properties:
+        uri:
+          example: https://github.com/kusaridev/cleanroom
+          format: uri-reference
+          type: string
+        commitId:
+          example: da39a3ee5e6b4b0d3255bfef95601890afd80709
+          format: sha1
+          type: string
+      type: object
+      xml:
+        name: gitRef
+    ApiResponse:
+      properties:
+        code:
+          format: int32
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
+      type: object
+      xml:
+        name: '##default'
+    slsa_provenance_v01:
+      description: Represents an In-Toto v1 statement.
+      example:
+        predicate:
+          runDetails:
+            metadata:
+              finishedOn: 2000-01-23T04:56:07.000+00:00
+              invocationId: invocationId
+              startedOn: 2000-01-23T04:56:07.000+00:00
+            builder: null
+            byproducts:
+            - digest:
+                key: digest
+              name: name
+              annotations:
+                key: ""
+              downloadLocation: https://openapi-generator.tech
+              mediaType: mediaType
+              uri: https://openapi-generator.tech
+              content: content
+            - digest:
+                key: digest
+              name: name
+              annotations:
+                key: ""
+              downloadLocation: https://openapi-generator.tech
+              mediaType: mediaType
+              uri: https://openapi-generator.tech
+              content: content
+          buildDefinition:
+            buildType: https://openapi-generator.tech
+            internalParameters:
+              key: ""
+            resolvedDependencies:
+            - digest:
+                key: digest
+              name: name
+              annotations:
+                key: ""
+              downloadLocation: https://openapi-generator.tech
+              mediaType: mediaType
+              uri: https://openapi-generator.tech
+              content: content
+            - digest:
+                key: digest
+              name: name
+              annotations:
+                key: ""
+              downloadLocation: https://openapi-generator.tech
+              mediaType: mediaType
+              uri: https://openapi-generator.tech
+              content: content
+            externalParameters:
+              key: ""
+        predicateType: https://openapi-generator.tech
+        subject:
+        - digest:
+            key: digest
+          name: name
+        - digest:
+            key: digest
+          name: name
+        _type: https://openapi-generator.tech
+      properties:
+        _type:
+          format: uri
+          type: string
+        predicate:
+          $ref: '#/components/schemas/SLSAProvenanceV1Predicate'
+        predicateType:
+          format: uri
+          type: string
+        subject:
+          items:
+            $ref: '#/components/schemas/Subject'
+          type: array
+      required:
+      - _type
+      - predicate
+      - predicateType
+      - subject
+      title: InTotoStatementV1_for_SLSAProvenanceV1Predicate
+      type: object
+    SLSAProvenanceV1Predicate:
+      description: A structure representing the SLSA Provenance v1 Predicate.
+      example:
+        runDetails:
+          metadata:
+            finishedOn: 2000-01-23T04:56:07.000+00:00
+            invocationId: invocationId
+            startedOn: 2000-01-23T04:56:07.000+00:00
+          builder: null
+          byproducts:
+          - digest:
+              key: digest
+            name: name
+            annotations:
+              key: ""
+            downloadLocation: https://openapi-generator.tech
+            mediaType: mediaType
+            uri: https://openapi-generator.tech
+            content: content
+          - digest:
+              key: digest
+            name: name
+            annotations:
+              key: ""
+            downloadLocation: https://openapi-generator.tech
+            mediaType: mediaType
+            uri: https://openapi-generator.tech
+            content: content
+        buildDefinition:
+          buildType: https://openapi-generator.tech
+          internalParameters:
+            key: ""
+          resolvedDependencies:
+          - digest:
+              key: digest
+            name: name
+            annotations:
+              key: ""
+            downloadLocation: https://openapi-generator.tech
+            mediaType: mediaType
+            uri: https://openapi-generator.tech
+            content: content
+          - digest:
+              key: digest
+            name: name
+            annotations:
+              key: ""
+            downloadLocation: https://openapi-generator.tech
+            mediaType: mediaType
+            uri: https://openapi-generator.tech
+            content: content
+          externalParameters:
+            key: ""
+      properties:
+        buildDefinition:
+          $ref: '#/components/schemas/SLSAProvenanceV1Predicate_buildDefinition'
+        runDetails:
+          $ref: '#/components/schemas/SLSAProvenanceV1Predicate_runDetails'
+      required:
+      - buildDefinition
+      - runDetails
+      type: object
+    Subject:
+      description: Represents a subject in an In-Toto v1 statement.
+      example:
+        digest:
+          key: digest
+        name: name
+      properties:
+        digest:
+          additionalProperties:
+            type: string
+          description: "Represents a set of digests, mapping algorithms to their respective\
+            \ digest strings."
+          type: object
+        name:
+          type: string
+      required:
+      - digest
+      - name
+      type: object
+    SLSAProvenanceV1Predicate_buildDefinition_resolvedDependencies_inner:
+      description: A size-efficient description of any software artifact or resource
+        (mutable or immutable).
+      example:
+        digest:
+          key: digest
+        name: name
+        annotations:
+          key: ""
+        downloadLocation: https://openapi-generator.tech
+        mediaType: mediaType
+        uri: https://openapi-generator.tech
+        content: content
+      properties:
+        annotations:
+          additionalProperties: true
+          description: This field MAY be used to provide additional information or
+            metadata about the resource or artifact that may be useful to the consumer
+            when evaluating the attestation against a policy.
+          nullable: true
+          type: object
+        content:
+          description: The contents of the resource or artifact. This field is REQUIRED
+            unless either uri or digest is set.
+          type: string
+        digest:
+          additionalProperties:
+            type: string
+          description: A set of cryptographic digests of the contents of the resource
+            or artifact. This field is REQUIRED unless either uri or content is set.
+          nullable: true
+          type: object
+        downloadLocation:
+          description: "The location of the described resource or artifact, if different\
+            \ from the uri."
+          format: uri
+          type: string
+        mediaType:
+          description: "The MIME Type (i.e., media type) of the described resource\
+            \ or artifact."
+          nullable: true
+          type: string
+        name:
+          description: Machine-readable identifier for distinguishing between descriptors.
+          nullable: true
+          type: string
+        uri:
+          description: A URI used to identify the resource or artifact globally. This
+            field is REQUIRED unless either digest or content is set.
+          format: uri
+          type: string
+      required:
+      - uri
+      type: object
+    SLSAProvenanceV1Predicate_buildDefinition:
+      description: A structure representing the build definition of the SLSA Provenance
+        v1 Predicate.
+      example:
+        buildType: https://openapi-generator.tech
+        internalParameters:
+          key: ""
+        resolvedDependencies:
+        - digest:
+            key: digest
+          name: name
+          annotations:
+            key: ""
+          downloadLocation: https://openapi-generator.tech
+          mediaType: mediaType
+          uri: https://openapi-generator.tech
+          content: content
+        - digest:
+            key: digest
+          name: name
+          annotations:
+            key: ""
+          downloadLocation: https://openapi-generator.tech
+          mediaType: mediaType
+          uri: https://openapi-generator.tech
+          content: content
+        externalParameters:
+          key: ""
+      properties:
+        buildType:
+          format: uri
+          type: string
+        externalParameters:
+          additionalProperties: true
+          description: "The parameters that are under external control, such as those\
+            \ set by a user or tenant of the build platform. They MUST be complete\
+            \ at SLSA Build L3, meaning that there is no additional mechanism for\
+            \ an external party to influence the build. (At lower SLSA Build levels,\
+            \ the completeness MAY be best effort.)\\nThe build platform SHOULD be\
+            \ designed to minimize the size and complexity of externalParameters,\
+            \ in order to reduce fragility and ease verification. Consumers SHOULD\
+            \ have an expectation of what “good” looks like; the more information\
+            \ that they need to check, the harder that task becomes.\\nVerifiers SHOULD\
+            \ reject unrecognized or unexpected fields within externalParameters."
+          type: object
+        internalParameters:
+          additionalProperties: true
+          description: "Unordered collection of artifacts needed at build time. Completeness\
+            \ is best effort, at least through SLSA Build L3. For example, if the\
+            \ build script fetches and executes “example.com/foo.sh”, which in turn\
+            \ fetches “example.com/bar.tar.gz”, then both “foo.sh” and “bar.tar.gz”\
+            \ SHOULD be listed here."
+          nullable: true
+          type: object
+        resolvedDependencies:
+          description: "Unordered collection of artifacts needed at build time. Completeness\
+            \ is best effort, at least through SLSA Build L3. For example, if the\
+            \ build script fetches and executes “example.com/foo.sh”, which in turn\
+            \ fetches “example.com/bar.tar.gz”, then both “foo.sh” and “bar.tar.gz”\
+            \ SHOULD be listed here."
+          items:
+            $ref: '#/components/schemas/SLSAProvenanceV1Predicate_buildDefinition_resolvedDependencies_inner'
+          nullable: true
+          type: array
+      required:
+      - buildType
+      - externalParameters
+      type: object
+    SLSAProvenanceV1Predicate_runDetails_builder:
+      allOf:
+      - description: A structure representing the builder information of the SLSA
+          Provenance v1 Predicate.
+        properties:
+          builderDependencies:
+            items:
+              $ref: '#/components/schemas/SLSAProvenanceV1Predicate_buildDefinition_resolvedDependencies_inner'
+            nullable: true
+            type: array
+          id:
+            format: uri
+            type: string
+          version:
+            nullable: true
+            type: string
+        required:
+        - id
+        type: object
+      description: "Identifies the build platform that executed the invocation, which\
+        \ is trusted to have correctly performed the operation and populated this\
+        \ provenance."
+    SLSAProvenanceV1Predicate_runDetails_metadata:
+      description: A structure representing the metadata of the SLSA Provenance v1
+        Predicate.
+      example:
+        finishedOn: 2000-01-23T04:56:07.000+00:00
+        invocationId: invocationId
+        startedOn: 2000-01-23T04:56:07.000+00:00
+      nullable: true
+      properties:
+        finishedOn:
+          description: The timestamp of when the build completed.
+          format: date-time
+          nullable: true
+          type: string
+        invocationId:
+          description: "Identifies this particular build invocation, which can be\
+            \ useful for finding associated logs or other ad-hoc analysis. The exact\
+            \ meaning and format is defined by builder.id; by default it is treated\
+            \ as opaque and case-sensitive. The value SHOULD be globally unique."
+          nullable: true
+          type: string
+        startedOn:
+          description: The timestamp of when the build started.
+          format: date-time
+          nullable: true
+          type: string
+      type: object
+    SLSAProvenanceV1Predicate_runDetails:
+      description: A structure representing the run details of the SLSA Provenance
+        v1 Predicate.
+      example:
+        metadata:
+          finishedOn: 2000-01-23T04:56:07.000+00:00
+          invocationId: invocationId
+          startedOn: 2000-01-23T04:56:07.000+00:00
+        builder: null
+        byproducts:
+        - digest:
+            key: digest
+          name: name
+          annotations:
+            key: ""
+          downloadLocation: https://openapi-generator.tech
+          mediaType: mediaType
+          uri: https://openapi-generator.tech
+          content: content
+        - digest:
+            key: digest
+          name: name
+          annotations:
+            key: ""
+          downloadLocation: https://openapi-generator.tech
+          mediaType: mediaType
+          uri: https://openapi-generator.tech
+          content: content
+      properties:
+        builder:
+          $ref: '#/components/schemas/SLSAProvenanceV1Predicate_runDetails_builder'
+        byproducts:
+          description: "Additional artifacts generated during the build that are not\
+            \ considered the “output” of the build but that might be needed during\
+            \ debugging or incident response. For example, this might reference logs\
+            \ generated during the build and/or a digest of the fully evaluated build\
+            \ configuration.\\nIn most cases, this SHOULD NOT contain all intermediate\
+            \ files generated during the build. Instead, this SHOULD only contain\
+            \ files that are likely to be useful later and that cannot be easily reproduced."
+          items:
+            $ref: '#/components/schemas/SLSAProvenanceV1Predicate_buildDefinition_resolvedDependencies_inner'
+          nullable: true
+          type: array
+        metadata:
+          $ref: '#/components/schemas/SLSAProvenanceV1Predicate_runDetails_metadata'
+      required:
+      - builder
+      type: object
+  securitySchemes:
+    api_key:
+      in: header
+      name: api_key
+      type: apiKey
