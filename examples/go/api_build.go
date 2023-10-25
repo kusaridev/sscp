@@ -35,7 +35,7 @@ func (r ApiAddBuildRequest) Build(build Build) ApiAddBuildRequest {
 	return r
 }
 
-func (r ApiAddBuildRequest) Execute() (*Build, *http.Response, error) {
+func (r ApiAddBuildRequest) Execute() (*CdBuildstarted, *http.Response, error) {
 	return r.ApiService.AddBuildExecute(r)
 }
 
@@ -55,13 +55,13 @@ func (a *BuildAPIService) AddBuild(ctx context.Context) ApiAddBuildRequest {
 }
 
 // Execute executes the request
-//  @return Build
-func (a *BuildAPIService) AddBuildExecute(r ApiAddBuildRequest) (*Build, *http.Response, error) {
+//  @return CdBuildstarted
+func (a *BuildAPIService) AddBuildExecute(r ApiAddBuildRequest) (*CdBuildstarted, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
 		formFiles            []formFile
-		localVarReturnValue  *Build
+		localVarReturnValue  *CdBuildstarted
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BuildAPIService.AddBuild")

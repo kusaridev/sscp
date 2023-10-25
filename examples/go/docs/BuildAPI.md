@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 ## AddBuild
 
-> Build AddBuild(ctx).Build(build).Execute()
+> CdBuildstarted AddBuild(ctx).Build(build).Execute()
 
 Add a new build to run
 
@@ -41,7 +41,7 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `BuildAPI.AddBuild``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `AddBuild`: Build
+    // response from `AddBuild`: CdBuildstarted
     fmt.Fprintf(os.Stdout, "Response from `BuildAPI.AddBuild`: %v\n", resp)
 }
 ```
@@ -61,7 +61,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Build**](Build.md)
+[**CdBuildstarted**](CdBuildstarted.md)
 
 ### Authorization
 

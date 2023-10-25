@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 ## add_build
 
-> crate::models::Build add_build(build)
+> crate::models::CdBuildstarted add_build(build)
 Add a new build to run
 
 Add a new build
@@ -27,7 +27,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::Build**](Build.md)
+[**crate::models::CdBuildstarted**](cd_buildstarted.md)
 
 ### Authorization
 

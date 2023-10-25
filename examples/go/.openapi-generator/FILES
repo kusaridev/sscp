@@ -12,6 +12,10 @@ docs/BuildAPI.md
 docs/BuildOutput.md
 docs/BuildOutputManifest.md
 docs/BuildStatus.md
+docs/CdBuildstarted.md
+docs/CdBuildstartedContext.md
+docs/CdBuildstartedCustomData.md
+docs/CdBuildstartedSubject.md
 docs/GitRef.md
 docs/SLSAProvenanceV1Predicate.md
 docs/SLSAProvenanceV1PredicateBuildDefinition.md
@@ -29,6 +33,10 @@ model_build.go
 model_build_output.go
 model_build_output_manifest.go
 model_build_status.go
+model_cd_buildstarted.go
+model_cd_buildstarted_context.go
+model_cd_buildstarted_custom_data.go
+model_cd_buildstarted_subject.go
 model_git_ref.go
 model_slsa_provenance_v01.go
 model_slsa_provenance_v1_predicate.go

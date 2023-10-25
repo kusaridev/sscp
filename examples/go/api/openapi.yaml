@@ -33,10 +33,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Build'
+                $ref: '#/components/schemas/cd_buildstarted'
             application/xml:
               schema:
-                $ref: '#/components/schemas/Build'
+                $ref: '#/components/schemas/cd_buildstarted'
           description: Successful operation
         "405":
           description: Invalid input
@@ -245,6 +245,35 @@ components:
       type: object
       xml:
         name: '##default'
+    cd_buildstarted:
+      additionalProperties: false
+      example:
+        customDataContentType: customDataContentType
+        subject:
+          id: id
+          source: source
+          type: build
+          content: "{}"
+        context:
+          id: id
+          source: source
+          type: dev.cdevents.build.started.0.1.1
+          version: version
+          timestamp: 2000-01-23T04:56:07.000+00:00
+        customData: null
+      properties:
+        context:
+          $ref: '#/components/schemas/cd_buildstarted_context'
+        subject:
+          $ref: '#/components/schemas/cd_buildstarted_subject'
+        customData:
+          $ref: '#/components/schemas/cd_buildstarted_customData'
+        customDataContentType:
+          type: string
+      required:
+      - context
+      - subject
+      type: object
     slsa_provenance_v01:
       description: Represents an In-Toto v1 statement.
       example:
@@ -409,6 +438,75 @@ components:
       - digest
       - name
       type: object
+    cd_buildstarted_context:
+      additionalProperties: false
+      example:
+        id: id
+        source: source
+        type: dev.cdevents.build.started.0.1.1
+        version: version
+        timestamp: 2000-01-23T04:56:07.000+00:00
+      properties:
+        version:
+          minLength: 1
+          type: string
+        id:
+          minLength: 1
+          type: string
+        source:
+          format: uri-reference
+          minLength: 1
+          type: string
+        type:
+          default: dev.cdevents.build.started.0.1.1
+          enum:
+          - dev.cdevents.build.started.0.1.1
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+      required:
+      - id
+      - source
+      - timestamp
+      - type
+      - version
+      type: object
+    cd_buildstarted_subject:
+      additionalProperties: false
+      example:
+        id: id
+        source: source
+        type: build
+        content: "{}"
+      properties:
+        id:
+          minLength: 1
+          type: string
+        source:
+          format: uri-reference
+          minLength: 1
+          type: string
+        type:
+          default: build
+          enum:
+          - build
+          minLength: 1
+          type: string
+        content:
+          additionalProperties: false
+          properties: {}
+          type: object
+      required:
+      - content
+      - id
+      - type
+      type: object
+    cd_buildstarted_customData:
+      oneOf:
+      - type: object
+      - type: string
+        x-contentEncoding: base64
     SLSAProvenanceV1Predicate_buildDefinition_resolvedDependencies_inner:
       description: A size-efficient description of any software artifact or resource
         (mutable or immutable).

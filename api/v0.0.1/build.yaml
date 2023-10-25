@@ -37,10 +37,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Build'
+                $ref: './cd_buildstarted.json'
             application/xml:
               schema:
-                $ref: '#/components/schemas/Build'
+                $ref: './cd_buildstarted.json'
         '405':
           description: Invalid input
       security:

@@ -50,7 +50,7 @@ pub enum GetSlsabyIdError {
 
 
 /// Add a new build
-pub async fn add_build(configuration: &configuration::Configuration, build: crate::models::Build) -> Result<crate::models::Build, Error<AddBuildError>> {
+pub async fn add_build(configuration: &configuration::Configuration, build: crate::models::Build) -> Result<crate::models::CdBuildstarted, Error<AddBuildError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
